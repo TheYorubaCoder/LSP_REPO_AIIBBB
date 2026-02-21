@@ -195,6 +195,6 @@ System.exit(0);
 
 The AI recommended Option 1 as the better OOP approach since it keeps the exit decision in the orchestrator rather than having the extractor forcefully terminate the program. `System.exit()` is considered bad practice as it bypasses normal program flow and makes code harder to test. The `gracefulExit()` method was advised to be removed entirely since it served no purpose.
 
-See the complete [AI chat](https://claude.ai/share/bccddf62-c74f-4f99-ad17-cef1c93639bd){:target="_blank"}
+See the complete [AI chat](https://claude.ai/share/bccddf62-c74f-4f99-ad17-cef1c93639bd) (I may have accidentally not included all prompts)
 
 ---
