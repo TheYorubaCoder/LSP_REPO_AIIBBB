@@ -1,77 +1,84 @@
-# Class Design Documentation: ATC System
+# Class Design Documentation
 
-## CRC Card
-**Class:** FlightInformation     
+---
+
+## Class: `FlightInformation`
+
 **Responsibilities:**
-- Holds a flight information object that includes aircraft type and other flight data 
+- Holds a flight information object that includes aircraft type and other flight data
 - Contains methods to access/set specific flight information
 
-**Collaborators (if any):** None
+**Collaborators:** Not needed
 
-**Assumptions (if any):** This is a data class used to pass flight state between other classes.
-
----
-
-## CRC Card
-**Class:** Receiver
-**Responsibilities:**
-- Unpacks raw high-density packets and extracts aircraft type and flight data
-- Generates FlightInformation object from unpacked packet
-- Sends FlightInformation to ATCDatabase for storage
-
-**Collaborators (if any):** FlightInformation, ATCDatabase
-
-**Assumptions (if any):** Receives raw byte packets from the aircraft's broadcast signal.
+**Assumptions:** This is a data class
 
 ---
 
-## CRC Card
-**Class:** ATCDatabase
+## Class: `Receiver`
+
 **Responsibilities:**
-- Creates/Initializes the database file based on whether it currently exists
-- Writes received FlightInformation objects into the database
-- Updates database records with new FlightInformation as updates arrive
-- Checks for data existence 
-- Fetches all data in the database and returns it as a list of FlightInformation objects
+- Unpacks raw packet and extracts aircraft type and flight data
+- Generates `FlightInformation` object from unpacked packet
+- Sends `FlightInformation` to `ATCDatabase` for storage
 
-**Collaborators (if any):** FlightInformation
+**Collaborators:**
+- `ATCDatabase`
 
-**Assumptions (if any):** Database is a separate SQL file that is written to and read from a given filepath.
+**Assumptions:** Receives raw byte packets from the aircraft's broadcast signal
 
 ---
 
-## CRC Card
-**Class:** Display 
+## Class: `ATCDatabase`
+
 **Responsibilities:**
-- Reads ATCDatabase and refreshes the graphical display every 10 seconds
-- Has a `whatIsOnDisplay` method that returns the current list of flight info objects or the most recent snapshot
+- Creates database based on whether the database has been created or not
+- Writes received `FlightInformation` object into the database
+- Updates database with new `FlightInformation` as more come in
+- Checks for data existence
+- Fetches all data in the database and returns as a list of `FlightInformation` objects
 
-**Collaborators (if any):** ATCDatabase
+**Collaborators:**
+- `FlightInformation`
 
-**Assumptions (if any):** Interacts with the database file to ensure the UI remains current.
+**Assumptions:** Database is a separate SQL file that is written to and read from a given filepath
 
 ---
 
-## CRC Card
-**Class:** DangerDetection
+## Class: `Display`
+
 **Responsibilities:**
-- Reads ATCDatabase to evaluate all active flights for potential dangers
-- Analyzes flight data to detect dangerous situations (e.g., collisions or restricted airspace)
-- Monitors the database continuously as long as data is available
+- Reads database and displays data every 10 seconds
+- Has a `whatIsOnDisplay` method that returns a list of flight info objects / most recent database snapshot from the most recent data read
 
-**Collaborators (if any):** ATCDatabase
+**Collaborators:**
+- `ATCDatabase`
 
-**Assumptions (if any):** Is self-triggered as soon as at least one record exists in the database.
+**Assumptions:** Database is a separate SQL file that is written to and read from a given filepath
 
 ---
 
-## CRC Card
-**Class:** Controller
+## Class: `DangerDetection`
+
 **Responsibilities:**
-- Calls `whatIsOnDisplay` from the Display class to see the current air traffic snapshot
-- Allows selection of a specific flight on the display 
-- Fetches and displays detailed flight history from the ATCDatabase upon user request
+- Reads database and evaluates all possible dangers
+- Has a `detectDanger` method that fetches and analyzes data in the database
+- Begins checking the database as long as data is available
 
-**Collaborators (if any):** Display, ATCDatabase
+**Collaborators:**
+- `ATCDatabase`
 
-**Assumptions (if any):** Queries occur based on user interaction with the graphical display interface.
+**Assumptions:** Self-triggered as soon as at least one line of data is contained in the database
+
+---
+
+## Class: `Controller`
+
+**Responsibilities:**
+- Calls `whatIsOnDisplay` to get a snapshot of all flights
+- Allows selection of a flight on the display and fetches detailed flight history from the database
+
+**Collaborators:**
+- `Display`
+- `ATCDatabase`
+
+**Assumptions:** Queries occur based on user interaction with the display
