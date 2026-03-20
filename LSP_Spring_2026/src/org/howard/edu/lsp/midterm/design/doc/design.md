@@ -1,27 +1,27 @@
-**Class:** Customer
-**Responsibilities:** holds customer info, access methods
+**Class:** Customer<br>
+**Responsibilities:** holds customer info, access methods<br>
 **Collaborators:** none
 
 ---
 
-**Class:** PriceCalculator
-**Responsibilities:** calculates tax + final price, calculates discount + final price
+**Class:** PriceCalculator<br>
+**Responsibilities:** calculates tax + final price, calculates discount + final price<br>
 **Collaborators:** Customer
 
 ---
 
-**Class:** OrderDatabase
-**Responsibilities:** writes order to file, logs order process
+**Class:** OrderDatabase<br>
+**Responsibilities:** writes order to file, logs order process<br>
 **Collaborators:** Customer
 
 ---
 
-**Class:** CustomerNotifier
-**Responsibilities:** prints receipt, sends confirmation email
+**Class:** CustomerNotifier<br>
+**Responsibilities:** prints receipt, sends confirmation email<br>
 **Collaborators:** Customer
 
 ---
 
-**Class:** OrderProcessor
-**Responsibilities:** creates Customer, calls PriceCalculator, delegates to Database and Notifier
+**Class:** OrderProcessor<br>
+**Responsibilities:** creates Customer, calls PriceCalculator, delegates to Database and Notifier<br>
 **Collaborators:** Customer, PriceCalculator, OrderDatabase, CustomerNotifier
