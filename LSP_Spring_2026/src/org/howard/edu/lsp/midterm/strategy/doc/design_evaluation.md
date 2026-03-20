@@ -1,0 +1,1 @@
+If the metrics for the different types of customers changes or becomes more complicated then the code would become difficult to read and extend. Also, iof there are new tiers of customers. It would just get messy. 
