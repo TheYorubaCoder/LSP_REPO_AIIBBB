@@ -9,21 +9,19 @@ Why addRequest() is unsafe: It combines two operations on shared state — consu
 
 
 Part 2:
-Fix A: (incorrect) Synchronizing getNextId() alone protects the ID increment in isolation, but addRequest() is still unsynchronized. Another thread can still jump into the gap between getting the ID and adding to the list. The compound action is still broken.
 
-Fix B:(correct) This is the right one. Synchronizing addRequest() makes the entire compound action atomic — no thread can observe the object in a half-updated state. Since addRequest() is the only method that writes to both shared resources, putting the lock here covers everything that matters.
+Fix A: (incorrect) Synchronizing getNextId() alone only protects the ID increment in isolation. addRequest() remains unsynchronized, so another thread can still interleave between the getNextId() call and the requests.add() call. The compound action — getting an ID and inserting into the list — is still not atomic, meaning the list can end up in a corrupted or inconsistent state.
 
-Fix C: (incorrect) Synchronizing getRequests() protects the read, but the damage happens during writes. By the time another thread calls getRequests(), the list may already be corrupted. Locking the door after the break-in doesn't help.
+Fix B: (correct) Synchronizing addRequest() makes the entire compound action atomic. Both the ID generation and the list insertion happen as one uninterruptible unit — no other thread can enter addRequest() while one is already executing it. This eliminates both the duplicate ID race and the unsafe ArrayList write, which are the only two write paths to the shared resources.
 
+Fix C: (incorrect) Synchronizing getRequests() only protects reads of the list, but the concurrency problem occurs during writes in addRequest(). A race condition can corrupt the list before any thread ever calls getRequests(), so locking the read does nothing to prevent the damage from happening.
 Part 3: 
 No, getNextId() should not be public.Riel's heuristics push toward minimal interfaces — a class should only expose what clients actually need to interact with it. The guiding principle is that implementation details should be hidden behind the class boundary.
 getNextId() is an implementation detail of how addRequest() works internally. No outside caller needs to generate an ID — that's the class's job. Making it public breaks encapsulation, exposes internals and invites misuse — a public method is a contract. Other code will depend on it, and now you can't change or remove it without breaking something
 
 Part 4:
 Description: 
-Yes — AtomicInteger combined with ConcurrentLinkedQueue (or CopyOnWriteArrayList) gives you lock-free thread safety without synchronized.
-1. Instead of locking a block of code so only one thread runs it at a time, atomic classes use CPU-level compare-and-swap (CAS) instructions. CAS says: "only update this value if it's still what I expect — otherwise retry." No thread ever blocks, they just retry on collision. ConcurrentLinkedQueue applies the same idea internally to the list structure.
-This makes the two shared resources safe individually. The tradeoff vs synchronized is that you lose the ability to make the compound action atomic as a single unit — but if ordering between ID generation and insertion doesn't strictly matter to your use case, it works well.
+The alternative approach uses atomic classes from java.util.concurrent.atomic — specifically AtomicInteger for nextId and ConcurrentLinkedQueue for the request list. AtomicInteger uses CPU-level compare-and-swap (CAS) instructions instead of locks: it only updates the value if it still matches what the thread expects, and retries otherwise. ConcurrentLinkedQueue applies the same lock-free strategy internally for the list structure. Together they make each individual operation thread-safe without the synchronized keyword.
 
 Code Snippet:
 private final AtomicInteger nextId = new AtomicInteger(1);
